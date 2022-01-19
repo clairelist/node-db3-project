@@ -99,14 +99,24 @@ async function findById(scheme_id) { // EXERCISE B
   // FROM schemes AS sc
   // LEFT JOIN steps AS st
   //     ON sc.scheme_id = st.scheme_id
-  // WHERE sc.scheme_id = ? --> scheme_id var ## NOTE:: Don't use string interpolation as that introduces security vulnerabilities to website !
+  // WHERE sc.scheme_id = ? --> scheme_id var ##
   // ORDER BY st.step_number ASC;
   const scheme = await lego('schemes AS sc')
                         .select('sc.scheme_name','st.*')
                         .leftJoin('steps AS st','sc.scheme_id','st.scheme_id')
-                        .where(`sc.scheme_id`,`${scheme_id}`)
+                        .where(`sc.scheme_id`,scheme_id)
                         .orderBy('st.step_number','ASC');
-        return scheme;
+      
+      const resultr = {
+        scheme_id: scheme[0].scheme_id,
+        scheme_name: scheme[0].scheme_name,
+        steps: scheme.reduce((steps,step)=>{
+            if (!step.step_id) return steps; 
+          const {step_number, step_id, instructions} = step;
+          return steps.concat({step_id,step_number,instructions})
+        },[])
+      }
+    return resultr;
 }
 
 function findSteps(scheme_id) { // EXERCISE C
