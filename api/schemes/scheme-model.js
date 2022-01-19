@@ -27,15 +27,15 @@ async function find() { // EXERCISE A
       return dataset;
 }
 
-function findById(scheme_id) { // EXERCISE B
+async function findById(scheme_id) { // EXERCISE B
   /*
     1B- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`:
 
       SELECT
           sc.scheme_name,
           st.*
-      FROM schemes as sc
-      LEFT JOIN steps as st
+      FROM schemes AS sc
+      LEFT JOIN steps AS st
           ON sc.scheme_id = st.scheme_id
       WHERE sc.scheme_id = 1
       ORDER BY st.step_number ASC;
@@ -93,6 +93,20 @@ function findById(scheme_id) { // EXERCISE B
         "steps": []
       }
   */
+  //     SELECT
+  //     sc.scheme_name,
+  //     st.*
+  // FROM schemes AS sc
+  // LEFT JOIN steps AS st
+  //     ON sc.scheme_id = st.scheme_id
+  // WHERE sc.scheme_id = ? --> scheme_id var ## NOTE:: Don't use string interpolation as that introduces security vulnerabilities to website !
+  // ORDER BY st.step_number ASC;
+  const scheme = await lego('schemes AS sc')
+                        .select('sc.scheme_name','st.*')
+                        .leftJoin('steps AS st','sc.scheme_id','st.scheme_id')
+                        .where(`sc.scheme_id`,`${scheme_id}`)
+                        .orderBy('st.step_number','ASC');
+        return scheme;
 }
 
 function findSteps(scheme_id) { // EXERCISE C
