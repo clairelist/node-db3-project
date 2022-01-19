@@ -1,13 +1,16 @@
-function find() { // EXERCISE A
+const lego = require('../../data/db-config.js');
+
+async function find() { // EXERCISE A
   /*
     1A- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`.
     What happens if we change from a LEFT join to an INNER join?
+      --> we lose the 'have fun!' plot, which only has (0) steps !
 
       SELECT
-          sc.*,
-          count(st.step_id) as number_of_steps
-      FROM schemes as sc
-      LEFT JOIN steps as st
+          sc.*, <------ apparently aliasing can be retroactive lol
+          count(st.step_id) AS number_of_steps <-- incrementing by step id
+      FROM schemes AS sc
+      LEFT JOIN steps AS st <-- will include ALL schemes, regardless of if matching entry in steps table
           ON sc.scheme_id = st.scheme_id
       GROUP BY sc.scheme_id
       ORDER BY sc.scheme_id ASC;
@@ -15,6 +18,13 @@ function find() { // EXERCISE A
     2A- When you have a grasp on the query go ahead and build it in Knex.
     Return from this function the resulting dataset.
   */
+ const dataset = await lego('schemes AS sc')
+                           .select('sc.*')
+                           .count('st.step_id AS number_of_steps')
+                           .leftJoin('steps AS st','sc.scheme_id','st.scheme_id')
+                           .groupBy('sc.scheme_id')
+                           .orderBy('sc.scheme_id','ASC');
+      return dataset;
 }
 
 function findById(scheme_id) { // EXERCISE B
