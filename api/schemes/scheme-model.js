@@ -101,19 +101,20 @@ async function findById(scheme_id) { // EXERCISE B
   //     ON sc.scheme_id = st.scheme_id
   // WHERE sc.scheme_id = ? --> scheme_id var ##
   // ORDER BY st.step_number ASC;
-  const scheme = await lego('schemes AS sc')
+  const rows = await lego('schemes AS sc')
                         .select('sc.scheme_name','st.*')
                         .leftJoin('steps AS st','sc.scheme_id','st.scheme_id')
                         .where(`sc.scheme_id`,scheme_id)
                         .orderBy('st.step_number','ASC');
       
       const resultr = {
-        scheme_id: scheme[0].scheme_id,
-        scheme_name: scheme[0].scheme_name,
-        steps: scheme.reduce((steps,step)=>{
-            if (!step.step_id) return steps; 
-          const {step_number, step_id, instructions} = step;
-          return steps.concat({step_id,step_number,instructions})
+        scheme_id: rows[0].scheme_id,
+        scheme_name: rows[0].scheme_name,
+        steps: rows.reduce((steps,step)=>{
+            if (!step.step_id) return steps;
+          return steps.concat({step_id:step.step_id,
+            step_number:step.step_number,
+            instructions:step.instructions})
         },[])
       }
     return resultr;

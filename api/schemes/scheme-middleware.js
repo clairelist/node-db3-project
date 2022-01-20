@@ -6,8 +6,20 @@
     "message": "scheme with scheme_id <actual id> not found"
   }
 */
-const checkSchemeId = (req, res, next) => {
 
+const db = require('../../data/db-config.js');
+
+const checkSchemeId = async (req, res, next) => {
+  try{
+    const scheme = await db('schemes').where('scheme_id', req.params.scheme_id).first();
+    if(!scheme){
+      next({ message: `scheme with scheme_id ${req.params.scheme_id} not found`, status: 404 })
+    } else {
+      next(); //DONT FORGET ABOUT ME !
+    }
+  } catch(err){
+    next(err);
+  }
 }
 
 /*
@@ -19,6 +31,18 @@ const checkSchemeId = (req, res, next) => {
   }
 */
 const validateScheme = (req, res, next) => {
+  //some magic ! from project video
+
+  if(
+    req.body.scheme_name === undefined ||
+    typeof req.body.scheme_name !== 'string' ||
+    !req.body.scheme_name.trim()
+  ){
+    const error = {status: 400, message: "invalid scheme_name"}
+    next(error);
+  } else {
+    next();
+  }
 
 }
 
@@ -32,7 +56,20 @@ const validateScheme = (req, res, next) => {
   }
 */
 const validateStep = (req, res, next) => {
+  const { instructions, step_number } = req.body;
 
+  if (
+    instructions === undefined ||
+    typeof instructions !== 'string' ||
+    !instructions.trim() ||
+    typeof step_number !== 'number' ||
+    step_number < 1
+  ) {
+    const error = {status: 400, message: 'invalid step'}
+    next(error);
+  } else {
+    next();
+  }
 }
 
 module.exports = {
