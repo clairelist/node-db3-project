@@ -166,8 +166,13 @@ ORDER BY step_number;
 
 function add(scheme) { // EXERCISE D
   /*
-    1D- This function creates a new scheme and resolves to _the newly created scheme_.
+    1D- This function creates a new scheme and resolves to _the newly created scheme_. EASY
   */
+
+    return lego('schemes').insert(scheme)
+      .then(([id]) => {
+        return lego('schemes').where('scheme_id',id).first(); //NOT an array ! first method fixes this
+      })
 }
 
 function addStep(scheme_id, step) { // EXERCISE E
@@ -176,6 +181,12 @@ function addStep(scheme_id, step) { // EXERCISE E
     and resolves to _all the steps_ belonging to the given `scheme_id`,
     including the newly created one.
   */
+ return lego('steps').insert({
+   ...step,
+   scheme_id
+ }).then(()=>{
+   return lego('steps').where('scheme_id',scheme_id).orderBy('step_number','asc');
+ })
 }
 
 module.exports = {
