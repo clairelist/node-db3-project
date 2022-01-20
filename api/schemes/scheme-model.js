@@ -120,12 +120,18 @@ async function findById(scheme_id) { // EXERCISE B
     return resultr;
 }
 
-function findSteps(scheme_id) { // EXERCISE C
+async function findSteps(scheme_id) { // EXERCISE C
   /*
     1C- Build a query in Knex that returns the following data.
     The steps should be sorted by step_number, and the array
     should be empty if there are no steps for the scheme:
-
+SELECT
+step_id, step_number, instructions, scheme_name
+FROM schemes AS sc
+LEFT JOIN steps AS st
+    ON sc.scheme_id = st.scheme_id
+WHERE sc.scheme_id = 6
+ORDER BY step_number;
       [
         {
           "step_id": 5,
@@ -140,7 +146,22 @@ function findSteps(scheme_id) { // EXERCISE C
           "scheme_name": "Get Rich Quick"
         }
       ]
+      SELECT
+step_id, step_number, instructions, scheme_name
+FROM schemes AS sc
+LEFT JOIN steps AS st
+    ON sc.scheme_id = st.scheme_id
+WHERE sc.scheme_id = ?
+ORDER BY step_number;
   */
+      const findr = await lego('schemes as sc')
+      .leftJoin('steps as st', 'sc.scheme_id','st.scheme_id')
+      .select('st.step_id','st.step_number','instructions','sc.scheme_name')
+      .where('sc.scheme_id',scheme_id)
+      .orderBy('step_number');
+
+      if (!findr[0].step_id) return [];
+      return findr;
 }
 
 function add(scheme) { // EXERCISE D
